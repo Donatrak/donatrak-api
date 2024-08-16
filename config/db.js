@@ -1,10 +1,10 @@
-import mongoose, { mongo } from "mongoose";
-import 'dotenv/config';
+import mongoose from "mongoose";
+import "dotenv/config"
 
-const mongoUri = process.env.MONGO_URL;
+const MongoUrl = process.env.MONGO_URL;
 
-export const dbConnection = () =>{
-    mongoose.connect(mongoUri).then(() =>{
-        console.log('Database connected');
-    })
-};
+// connection link
+export const dbConnection = async() =>{
+     await mongoose.connect(MongoUrl)
+         console.log('Database connected')
+   } 
