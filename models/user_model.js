@@ -6,7 +6,6 @@ const userSchema = new Schema({
     lastName: { type: String, required: true },
     email: { type: String, required: true },
     password: { type: String, required: true },
-    profilePicture: { type: String, required: true },
     resetPasswordToken: { type: String },
     resetPasswordExpires: { type: Date },
     role: { type: String, enum: ['user', 'campaignManager'], default: 'user' }

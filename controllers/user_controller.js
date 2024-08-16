@@ -16,7 +16,7 @@ export const register = async (req, res, next) => {
     
         // Check if the user exists in the database using their email
         const email = value.email;
-        const findIfUserExist = await UserModel.findOne({email})
+        const findIfUserExist = await User.findOne({email})
         if (findIfUserExist) {
             return res.status(401).json({
                 status: false,
@@ -30,7 +30,7 @@ export const register = async (req, res, next) => {
         }
     
         // Create a new user
-        const addUser = await UserModel.create(value)
+        const addUser = await User.create(value)
         req.session.user = {id: addUser.id}
 
         // Construct the response object without the unnecessary fields
@@ -38,7 +38,6 @@ export const register = async (req, res, next) => {
             firstName: addUser.firstName,
             lastName: addUser.lastName,
             email: addUser.email,
-            profilePicture: addUser.profilePicture,
             password: addUser.password
         }
 
@@ -58,7 +57,7 @@ export const loginSession = async (req, res, next) => {
     try {
         const {email, password} = req.body
         // Find user using their unique identifier
-        const user = await UserModel.findOne({email})
+        const user = await User.findOne({email})
     
         if(!user) {
             return res.status(401).json('No user found')
@@ -95,7 +94,7 @@ export const loginToken = async (req, res, next) => {
             return res.status(422).json(error);
         }
 
-        const user = await UserModel.findOne({ email: value.email });
+        const user = await User.findOne({ email: value.email });
         if (!user) {
             return res.status(401).json('User Not Found');
         }
@@ -135,8 +134,7 @@ export const logout = async (req, res, next) => {
 export const getUsers = async (req, res, next) => {
     try {
         // Get all users
-        const users = await UserModel
-            .find()
+        const users = await User.find()
             .select({ password: false });
         // Return response
         res.status(200).json(users);
@@ -155,7 +153,7 @@ export const createUser = async (req, res, next) => {
         // Encrypt user password
         const hashedPassword = bcrypt.hashSync(value.password, 10);
         // Create user
-        await UserModel.create({
+        await User.create({
             ...value,
             password: hashedPassword
         });
@@ -181,7 +179,7 @@ export const updateUser = async (req, res, next) => {
             return res.status(422).json(error);
         }
         // Update user
-        await UserModel.findByIdAndUpdate(
+        await User.findByIdAndUpdate(
             req.params.id,
             value,
             { new: true }
