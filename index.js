@@ -12,9 +12,7 @@ import { campaignRouter } from "./routes/campaign_route.js";
 import { paymentRouter } from "./routes/payment_route.js";
 import expressOasGenerator from "@mickeymond/express-oas-generator";
 import mongoose from "mongoose";
-import { redisClient } from "./config/redisClient.js"; 
-import RedisStore from 'connect-redis';
-
+import redis from "redis";
 
 
 
@@ -39,22 +37,47 @@ app.use(express.static("donatrak"));
 
 
 
+export const client = redis.createClient({
+  socket: {
+    host: process.env.REDIS_HOST,
+    port: process.env.REDIS_PORT,
+    url: process.env.REDIS_URL
+  },
+  password: process.env.REDIS_PASSWORD
+});
+
+
+client.on('error', (err) => {
+  console.error('Redis Client Error:', err);
+});
+
+client.connect().then(() => {
+  console.log('Connected to Redis')
+})
+  .catch((err) => {
+    console.error('Failed to connect to Redis:', err)
+  });
+
+
+
 app.use(
-    session({
-      store: new RedisStore({ client: redisClient }), 
-      secret: process.env.SESSION_SECRET, 
-      resave: false,
-      saveUninitialized: false, 
-      cookie: {secure: false, 
-        maxAge: 60000 }
-    }));
+  session({
+    secret: process.env.SESSION_SECRET, //encrypts the file
+    resave: false,
+    saveUninitialized: true,
+    // cookie: {secure: true}
+    store: MongoStore.create({
+      mongoUrl: process.env.MONGO_URL
+    })
+  }));
   
   app.get("/api/v1/health", (req, res) => {
     res.status(200).json({ status: "UP" });
   });
   
   // Use routes
-  app.use('/api/v1', userRouter)
+  app.use('/api/v1', userRouter),
+ app.use('/api/v1', userProfileRouter),
 app.use('/api/v1', passwordResetRouter);
 app.use('/api/v1',donationRouter)
 app.use('/api/v1',campaignRouter)
