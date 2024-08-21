@@ -1,7 +1,5 @@
 import redis from 'redis';
 
-const REDIS_PORT = 6379;
-
 export const redisClient = redis.createClient({
     url: `redis://localhost:${REDIS_PORT}`
 });
