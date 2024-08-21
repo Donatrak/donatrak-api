@@ -1,12 +1,13 @@
 import Joi from 'joi';
 
 export const registerValidator = Joi.object({
-    fullName: Joi.string().required(),
+    firstName: Joi.string().required(),
+    lastName: Joi.string().required(),
     phone: Joi.string(),
     email: Joi.string().email().required(),
-    profession: Joi.string(),
     password: Joi.string().min(8).required(),
-    termsAndConditions: Joi.boolean()
+    role: Joi.string().valid('user', 'campaignManager').required(),  
+    termsAndConditions: Joi.boolean().valid(true).required()  
 });
 
 export const loginValidator = Joi.object({

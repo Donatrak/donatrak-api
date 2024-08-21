@@ -12,6 +12,9 @@ import { campaignRouter } from "./routes/campaign_route.js";
 import { paymentRouter } from "./routes/payment_route.js";
 import expressOasGenerator from "@mickeymond/express-oas-generator";
 import mongoose from "mongoose";
+import { redisClient } from "./config/redisClient.js"; 
+import RedisStore from 'connect-redis';
+
 
 
 
@@ -38,13 +41,12 @@ app.use(express.static("donatrak"));
 
 app.use(
     session({
-      secret: process.env.SESSION_SECRET, //encrypts the file
+      store: new RedisStore({ client: redisClient }), 
+      secret: process.env.SESSION_SECRET, 
       resave: false,
-      saveUninitialized: true,
-      // cookie: {secure: true}
-      store: MongoStore.create({
-        mongoUrl: process.env.MONGO_URL
-      })
+      saveUninitialized: false, 
+      cookie: {secure: false, 
+        maxAge: 60000 }
     }));
   
   app.get("/api/v1/health", (req, res) => {

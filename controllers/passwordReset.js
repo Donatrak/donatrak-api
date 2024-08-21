@@ -11,7 +11,7 @@ const generateOtp = () => {
 export const requestPasswordReset = async (req, res, next) => {
     const { email } = req.body;
     try {
-        const user = await UserModel.findOne({ email });
+        const user = await User.findOne({ email });
         if (!user) {
             return res.status(404).json('User not found');
         }
@@ -61,7 +61,7 @@ export const requestPasswordReset = async (req, res, next) => {
 export const confirmOtp = async (req, res, next) => {
     const { email, otp } = req.body;
     try {
-        const user = await UserModel.findOne({ email });
+        const user = await User.findOne({ email });
         if (!user || !user.resetPasswordToken || user.resetPasswordExpires < Date.now()) {
             return res.status(400).json('OTP is invalid or has expired');
         }
@@ -78,7 +78,7 @@ export const confirmOtp = async (req, res, next) => {
 export const resetPassword = async (req, res, next) => {
     const { email, otp, newPassword } = req.body;
     try {
-        const user = await UserModel.findOne({ email });
+        const user = await User.findOne({ email });
         if (!user || !user.resetPasswordToken || user.resetPasswordExpires < Date.now()) {
             return res.status(400).json('OTP is invalid or has expired');
         }

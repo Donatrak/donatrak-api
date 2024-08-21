@@ -13,6 +13,7 @@ const campaignSchema = new Schema ({
     endDate: {type: Date, required:true},
     createdBy: {type: Types.ObjectId, ref: 'User', required: true},
     status: {type: String, enum:['active','completed', 'inactive'], default: 'inactive'},
+    image: { type: String }
 }, {
     timestamps: true
 });
