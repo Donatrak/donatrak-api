@@ -2,7 +2,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { createUserValidator, loginValidator, registerValidator, updateUserValidator, } from '../validators/user_validator.js';
 import { User} from '../models/user_model.js';
-import { redisClient } from '../config/redisClient.js';
+import { createClient } from 'redis';
 
 // Create a function to register
 export const register = async (req, res, next) => {
@@ -158,7 +158,7 @@ export const logout = async (req, res, next) => {
 
 
         // Store the token in Redis with an expiry time using the `set` method
-        await redisClient.set(token, 'blacklisted', {
+        await createClient.set(token, 'blacklisted', {
             EX: timeToExpire // EX is the expiry option for the number of seconds
         });
 
