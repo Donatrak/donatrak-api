@@ -30,7 +30,7 @@ export const verifyPayment = async (req, res, next) => {
         const verificationResponse = await verifyPaystackPayment(reference);
 
         if (verificationResponse.status) {
-            const donation = await DonationModel.findOne({ reference });
+            const donation = await donationModel.findOne({ reference });
 
             if (donation) {
                 donation.status = 'completed';

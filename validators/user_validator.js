@@ -6,6 +6,8 @@ export const registerValidator = Joi.object({
     phone: Joi.string(),
     email: Joi.string().email().required(),
     password: Joi.string().min(8).required(),
+    role: Joi.string().valid('user', 'campaignManager').required(),  
+    termsAndConditions: Joi.boolean().valid(true).required()  
 });
 
 export const loginValidator = Joi.object({

@@ -9,8 +9,9 @@ const donationSchema = new Schema ({
     donationDate: {type: Date, default: Date.now},
     status: {type: String, enum: ['pending', 'completed','failed'],default: 'pending'},
     message: {type: String}, //optional for any reference or message
-    reference: String,  // Add field for payment reference
-    transactionId: String  // Add field for transaction ID
+    reference: {type: String},  // Add field for payment reference
+    transactionId: {type:String},  // Add field for transaction ID
+    paymentMethod: { type: String, enum: ['card', 'momo'], required: true } 
 },{
     timestamps: true,
 });

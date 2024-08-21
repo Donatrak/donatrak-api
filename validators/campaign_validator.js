@@ -7,7 +7,8 @@ export const createCampaignValidator = Joi.object({
     goalAmount: Joi.number().positive().required(),
     startDate: Joi.date().required(),
     endDate: Joi.date().required(),
-    status: Joi.string().valid('active','completed','inactive')
+    status: Joi.string().valid('active','completed','inactive'),
+    image: Joi.string(),
 });
 
 export const updateCampaignValidator = Joi.object({
@@ -16,5 +17,6 @@ export const updateCampaignValidator = Joi.object({
     goalAmount: Joi.number().positive(),
     startDate: Joi.date(),
     endDate: Joi.date(),
-    status: Joi.string().valid('active','completed','inactive')
+    status: Joi.string().valid('active','completed','inactive'),
+    image:Joi.string()
 });

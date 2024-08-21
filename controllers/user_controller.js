@@ -2,56 +2,63 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { createUserValidator, loginValidator, registerValidator, updateUserValidator, } from '../validators/user_validator.js';
 import { User} from '../models/user_model.js';
+import { redisClient } from '../config/redisClient.js';
 
 // Create a function to register
 export const register = async (req, res, next) => {
     try {   
-        const {error, value} = registerValidator.validate(req.body)
-        if(error) {
+        const {error, value} = registerValidator.validate(req.body);
+        if (error) {
             return res.status(400).json({
                 status: false,
                 message: error.message
-            })
+            });
         }
-    
-        // Check if the user exists in the database using their email
+
+        // Ensure user agrees to terms and conditions
+        if (!value.termsAndConditions) {
+            return res.status(400).json({
+                status: false,
+                message: 'You must accept the terms and conditions to register'
+            });
+        }
+
+        // Check if the user exists using their email
         const email = value.email;
-        const findIfUserExist = await User.findOne({email})
+        const findIfUserExist = await User.findOne({ email });
         if (findIfUserExist) {
             return res.status(401).json({
                 status: false,
                 message: 'User is already registered'
-            })
-        } else {
-    
-            // Hash the password
-            const hashedPassword = await bcrypt.hash(value.password, 10)
-            value.password = hashedPassword
+            });
         }
-    
-        // Create a new user
-        const addUser = await User.create(value)
-        req.session.user = {id: addUser.id}
 
-        // Construct the response object without the unnecessary fields
+        // Hash the password
+        value.password = await bcrypt.hash(value.password, 10);
+
+        // Create the new user
+        const addUser = await User.create(value);
+        req.session.user = { id: addUser.id };
+
+        // Response object
         const response = {
             firstName: addUser.firstName,
             lastName: addUser.lastName,
             email: addUser.email,
-            password: addUser.password
-        }
+            role: addUser.role
+        };
 
         return res.status(201).json({
             response: response,
             message: 'User successfully registered'
-        })
+        });
     } catch (error) {
         return res.status(401).json({
-        status: false,
-        message: error.message
-        })
+            status: false,
+            message: error.message
+        });
     }
-}
+};
 
 export const loginSession = async (req, res, next) => {
     try {
@@ -112,7 +119,13 @@ export const loginToken = async (req, res, next) => {
 
         res.status(200).json({
             message: 'User Logged In',
-            accessToken: token
+            accessToken: token,
+            userDetails: {
+                firstName: user.firstName,
+                lastName: user.lastName,
+                email: user.email,
+                role: user.role
+            }
         });
     } catch (error) {
         next(error);
@@ -120,16 +133,51 @@ export const loginToken = async (req, res, next) => {
 };
 
 
+
 export const logout = async (req, res, next) => {
     try {
+        const token = req.headers['authorization']?.split(' ')[1];  // Extract token from headers
+      
+        
+        if (!token) {
+            return res.status(401).json({ message: 'Token not found' });
+        }
+
+        // Decode the token to get expiration time
+        const decoded = jwt.decode(token);
+      
+
+        const exp = decoded.exp;
+        const currentTime = Math.floor(Date.now() / 1000);
+        let timeToExpire = exp - currentTime;
+
+        // Adjust if token already expired
+        if (timeToExpire <= 0) {
+            return res.status(400).json({ message: 'Token has already expired' });
+        }
+
+
+        // Store the token in Redis with an expiry time using the `set` method
+        await redisClient.set(token, 'blacklisted', {
+            EX: timeToExpire // EX is the expiry option for the number of seconds
+        });
+
+
         // Destroy user session
-        await req.session.destroy();
-        // Return response
-        return res.status(200).json('Logout successful')
+        req.session.destroy((err) => {
+            if (err) {
+                console.error('Session destruction error:', err);
+                return res.status(500).json({ message: 'Failed to destroy session' });
+            }
+            return res.status(200).json({ message: 'Logout successful' });
+        });
+
     } catch (error) {
-        next(error)
+        console.error('Logout error:', error);
+        next(error);
     }
-}
+};
+
 
 export const getUsers = async (req, res, next) => {
     try {

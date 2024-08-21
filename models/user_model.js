@@ -8,7 +8,8 @@ const userSchema = new Schema({
     password: { type: String, required: true },
     resetPasswordToken: { type: String },
     resetPasswordExpires: { type: Date },
-    role: { type: String, enum: ['user', 'campaignManager'], default: 'user' }
+    role: { type: String, enum: ['user', 'campaignManager'],required: true },
+    termsAndConditions: { type: Boolean, required: true}  
 }, {
     timestamps: true
 });
