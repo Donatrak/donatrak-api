@@ -77,7 +77,6 @@ app.use(
   
   // Use routes
   app.use('/api/v1', userRouter),
- app.use('/api/v1', userProfileRouter),
 app.use('/api/v1', passwordResetRouter);
 app.use('/api/v1',donationRouter)
 app.use('/api/v1',campaignRouter)
