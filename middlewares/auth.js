@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 import { User } from "../models/user_model.js";
-import { redisClient } from "../config/redisClient.js";
+import { createClient } from 'redis';
 
 export const checkAuth = async (req, res, next) => {
     try {
@@ -44,7 +44,7 @@ export const checkBlacklist = async (req, res, next) => {
         }
 
         // Check if the token is blacklisted
-        const data = await redisClient.get(token);
+        const data = await createClient.get(token);
 
         if (data === 'blacklisted') {
             return res.status(401).json({ message: 'Token is blacklisted' });
