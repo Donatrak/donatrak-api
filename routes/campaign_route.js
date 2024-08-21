@@ -11,4 +11,4 @@ campaignRouter.patch('/users/campaigns/:id/status', checkAuth, updateCampaignSta
 campaignRouter.put('/users/campaigns/:id', checkAuth,remoteUpload.single('image'), updateCampaign);
 campaignRouter.delete('/users/campaigns/:id', checkAuth, deleteCampaign);
 campaignRouter.get('/users/campaigns', getAllCampaigns);
-campaignRouter.get('/users/campaigns/:id', checkAuth, getSingleCampaign);
+campaignRouter.get('/users/campaigns/:id', getSingleCampaign);
